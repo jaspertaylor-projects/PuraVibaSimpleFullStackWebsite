@@ -1,0 +1,28 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # This is the magic for hot-reloading. It syncs your local 'backend'
+      # folder with the '/app' folder inside the container. Your IDE edits
+      # local files, and uvicorn sees the changes inside the container.
+      - ./backend:/app
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      # Exposes the Vite dev server port
+      - "5173:5173"
+    environment:
+      # Helps Vite's file watcher work more reliably in Docker
+      - WATCHPACK_POLLING=true
+    volumes:
+      # Syncs your local 'frontend' code with the container's '/app' folder
+      - ./frontend:/app
+      # This is a special "anonymous volume". It tells Docker: "For the
+      # /app/node_modules directory, use the one from the image, and IGNORE
+      # whatever is (or isn't) in the local ./frontend/node_modules folder."
+      - /app/node_modules
