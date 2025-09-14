@@ -3,7 +3,7 @@
 // Imports From: ./App.css, ./theme.js
 // Exported To: None
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import './App.css'; // For global styles
 import theme from './theme.js';
 
 export default function App() {
@@ -31,30 +31,71 @@ export default function App() {
     appContainer: {
       backgroundColor: theme.background,
       color: theme.textPrimary,
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+      boxSizing: 'border-box',
     },
     appHeader: {
       backgroundColor: theme.secondary,
+      padding: '2rem',
+      borderRadius: '12px',
+      textAlign: 'center',
+      marginBottom: '2rem',
+      width: '100%',
+      maxWidth: '600px',
     },
     appTitle: {
       color: theme.primary,
+      margin: 0,
     },
     appSubtitle: {
       color: theme.textSecondary,
+      margin: '0.5rem 0 0 0',
     },
     apiCard: {
       backgroundColor: theme.cardBackground,
+      borderRadius: '12px',
+      padding: '2rem',
+      border: `1px solid ${theme.border}`,
+      boxShadow: `0 4px 12px ${theme.shadow}`,
+      minWidth: '450px',
+      width: '100%',
+      maxWidth: '600px',
+      textAlign: 'center',
+    },
+    apiCardTitle: {
+      margin: '0 0 1rem 0',
+      color: theme.textPrimary,
     },
     apiCardErrorMessage: {
       color: theme.error,
+      fontFamily: 'monospace',
+      margin: '1rem 0',
+    },
+    apiCardMessage: {
+      fontFamily: 'monospace',
+      fontSize: '1.25rem',
+      color: theme.textSuccess,
+      margin: '1rem 0',
+    },
+    apiCardTimestamp: {
+      fontSize: '0.9rem',
+      color: theme.textMuted,
     },
     apiCardRefreshButton: {
       backgroundColor: theme.buttonBackground,
       color: theme.buttonText,
       border: 'none',
       padding: '10px 20px',
-      borderRadius: '5px',
+      borderRadius: '8px',
       cursor: 'pointer',
       fontWeight: 'bold',
+      marginTop: '1.5rem',
+      fontSize: '1em',
     },
   };
 
@@ -69,15 +110,21 @@ export default function App() {
         </p>
       </header>
       <main className="api-card" style={styles.apiCard}>
-        <h2 className="api-card__title">Message from Backend</h2>
+        <h2 className="api-card__title" style={styles.apiCardTitle}>
+          Message from Backend
+        </h2>
         {error ? (
           <p className="api-card__error-message" style={styles.apiCardErrorMessage}>
             {error}
           </p>
         ) : (
           <>
-            <p className="api-card__message">"{apiData.message}"</p>
-            <p className="api-card__timestamp">Timestamp: {apiData.timestamp}</p>
+            <p className="api-card__message" style={styles.apiCardMessage}>
+              "{apiData.message}"
+            </p>
+            <p className="api-card__timestamp" style={styles.apiCardTimestamp}>
+              Timestamp: {apiData.timestamp}
+            </p>
           </>
         )}
         <button
