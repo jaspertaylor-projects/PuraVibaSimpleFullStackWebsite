@@ -1,35 +1,42 @@
 # backend/Dockerfile
-# Purpose: Build and run the FastAPI backend with uv and ensure a writable /logs directory exists for error logging.
+# Purpose: Build and run the FastAPI backend as a non-root user (UID 1000) so host logs are user-owned; create the venv as that user to avoid permission issues.
 # Imports From: ./pyproject.toml, ./uv.lock, ./app/*
 # Exported To: docker-compose service "backend".
 # syntax=docker/dockerfile:1.4
 
 # ---- Base Image ----
-FROM python:3.11-slim
+FROM python:3.11-slim AS base
 
-# Ensure unbuffered output from Python
 ENV PYTHONUNBUFFERED=1
-
-# Provide a conventional logs location inside the container
 ENV LOG_DIR=/logs
 
-# ---- Install uv ----
-RUN pip install uv
+# Install uv globally
+RUN pip install --no-cache-dir uv
+
+# Create a non-root user with UID/GID 1000
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g "${GID}" app && useradd -m -u "${UID}" -g "${GID}" app
 
 WORKDIR /app
 
-# ---- Create a virtual environment ----
-RUN uv venv
-
-# ---- Install Dependencies ----
+# Copy project metadata
 COPY pyproject.toml uv.lock* ./
-RUN uv sync --frozen
 
-# ---- Copy Application Code ----
-COPY ./app ./app
+# Prepare directories and ownership for the non-root user
+RUN mkdir -p "${LOG_DIR}" && chown -R app:app "${LOG_DIR}" /app
 
-# ---- Prepare logs directory ----
-RUN mkdir -p "${LOG_DIR}"
+# Switch to non-root user before creating the venv so it’s owned by app
+USER app
 
-# ---- Final Command ----
+# Create venv and install deps into it using uv
+RUN uv venv && uv sync --frozen
+
+# Copy application code (owned by app)
+COPY --chown=app:app ./app ./app
+
+# Expose backend port
+EXPOSE 8000
+
+# Run under uv with reload
 CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

@@ -1,4 +1,7 @@
-# This pragma enables Docker BuildKit features like cache mounts
+# frontend/Dockerfile
+# Purpose: Build the Vite/React frontend, including a utility for permissions management in development.
+# Imports From: package.json, pnpm-lock.yaml, ./src/*
+# Exported To: docker-compose service "frontend".
 # syntax=docker/dockerfile:1.4
 
 # ---- Base Image ----
@@ -6,6 +9,8 @@ FROM node:20-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+# Add su-exec for easy user switching
+RUN apk add --no-cache su-exec
 
 # ---- Dependencies ----
 FROM base AS deps

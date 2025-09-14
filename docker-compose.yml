@@ -1,29 +1,40 @@
 # docker-compose.yml
-# Purpose: Define the multi-container app, ensure host ./logs is owned by the invoking user before other services start, and mount a shared /logs directory for both containers.
+# Purpose: Define the multi-container app, fix ownership for host ./logs, and ensure services have correct permissions for hot-reloading and logging.
 # Imports From: ./backend/Dockerfile, ./frontend/Dockerfile
 # Exported To: The Docker daemon and local ./logs folder for persisted logs.
 services:
-  # One-shot init job to fix ownership and permissions on the host's ./logs directory.
-  # This prevents root-owned files when containers write logs via the bind mount.
+  # Ensure host ./logs is owned by ${UID:-1000}:${GID:-1000} before others start.
   log-perms:
     image: alpine:3.20
     user: "0:0"
     working_dir: /logs
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      mkdir -p /logs &&
-      chown -R ${UID:-1000}:${GID:-1000} /logs &&
-      chmod -R u+rwX,g+rwX /logs
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        mkdir -p /logs
+        if [ -f /logs ]; then
+          echo "Error: /logs exists as a file; expected a directory" >&2
+          exit 1
+        fi
+        chown -R ${UID:-1000}:${GID:-1000} /logs
+        chmod -R u+rwX,g+rwX /logs
+        echo "log-perms: fixed ownership to UID=${UID:-1000} GID=${GID:-1000}"
     volumes:
       - ./logs:/logs
 
   backend:
-    user: "${UID}:${GID}"
+    user: "${UID:-1000}:${GID:-1000}"
     build:
       context: ./backend
     depends_on:
       log-perms:
         condition: service_completed_successfully
+    environment:
+      - HOME=/tmp
+      - UV_CACHE_DIR=/tmp/uv-cache
+      - PIP_CACHE_DIR=/tmp/pip-cache
     ports:
       - "8000:8000"
     volumes:
@@ -31,18 +42,31 @@ services:
       - ./logs:/logs
 
   frontend:
-    user: "${UID}:${GID}"
+    # This service starts as root to fix permissions, then steps down.
     build:
       context: ./frontend
     depends_on:
       log-perms:
         condition: service_completed_successfully
+    # New command to fix permissions and run the dev server as the correct user.
+    command: >
+      sh -c "
+        chown -R ${UID:-1000}:${GID:-1000} /app/node_modules &&
+        exec su-exec ${UID:-1000}:${GID:-1000} pnpm run dev
+      "
     ports:
       - "5173:5173"
     environment:
       - WATCHPACK_POLLING=true
     volumes:
+      # Project source (hot reload)
       - ./frontend:/app
+      # Make backend source visible to Vite at /app/backend
       - ./backend:/app/backend
-      - /app/node_modules
+      # Use a named volume for node_modules
+      - frontend_node_modules:/app/node_modules
+      # Shared logs directory
       - ./logs:/logs
+
+volumes:
+  frontend_node_modules:

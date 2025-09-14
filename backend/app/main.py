@@ -1,5 +1,5 @@
 # backend/app/main.py
-# Purpose: Define the FastAPI app, configure robust logging to /logs, and add a safe HTTP middleware that logs unhandled exceptions without breaking Starlette's middleware contract.
+# Purpose: Define the FastAPI app and configure robust logging. Register a proper ASGI middleware for exception logging using add_middleware so all errors are captured in /logs.
 # Imports From: None
 # Exported To: None
 from __future__ import annotations
@@ -10,14 +10,11 @@ import logging.config
 import os
 import sys
 import traceback
-from logging.handlers import RotatingFileHandler
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from starlette.middleware.base import BaseHTTPMiddleware
-
 
 # ---- Paths -------------------------------------------------------------------
 LOG_DIR = os.getenv("LOG_DIR", "/logs")
@@ -62,21 +59,43 @@ def configure_logging() -> None:
             "frontend_file": _rotating_file_handler_dict(FRONTEND_ERROR_FILE, "ERROR"),
         },
         "loggers": {
-            "uvicorn": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
-            "uvicorn.error": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
-            "uvicorn.access": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
-            "fastapi": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
-            "frontend.client": {"level": "ERROR", "handlers": ["frontend_file"], "propagate": False},
+            "uvicorn": {
+                "level": "ERROR",
+                "handlers": ["backend_file"],
+                "propagate": False,
+            },
+            "uvicorn.error": {
+                "level": "ERROR",
+                "handlers": ["backend_file"],
+                "propagate": False,
+            },
+            "uvicorn.access": {
+                "level": "ERROR",
+                "handlers": ["backend_file"],
+                "propagate": False,
+            },
+            "fastapi": {
+                "level": "ERROR",
+                "handlers": ["backend_file"],
+                "propagate": False,
+            },
+            "frontend.client": {
+                "level": "ERROR",
+                "handlers": ["frontend_file"],
+                "propagate": False,
+            },
         },
         "root": {"level": "ERROR", "handlers": ["backend_file"]},
     }
 
+    # Avoid duplicated handlers in reload scenarios.
     for name in ("", "uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "frontend.client"):
         logger = logging.getLogger(name)
         logger.handlers.clear()
 
     logging.config.dictConfig(config)
 
+    # Ensure log files exist so they can be tailed immediately.
     try:
         for f in (BACKEND_ERROR_FILE, FRONTEND_ERROR_FILE):
             if not os.path.exists(f):
@@ -87,7 +106,10 @@ def configure_logging() -> None:
 
     def _excepthook(exc_type, exc, tb):
         logger = logging.getLogger("uvicorn.error")
-        logger.error("Uncaught exception\n%s", "".join(traceback.format_exception(exc_type, exc, tb)))
+        logger.error(
+            "Uncaught exception\n%s",
+            "".join(traceback.format_exception(exc_type, exc, tb)),
+        )
 
     sys.excepthook = _excepthook  # type: ignore[assignment]
 
@@ -98,11 +120,38 @@ configure_logging()
 # ---- FastAPI App --------------------------------------------------------------
 app = FastAPI()
 
+
+# ---- Exception Logging Middleware (ASGI) --------------------------------------
+class ExceptionLoggingMiddleware:
+    # Purpose: Capture any unhandled exceptions during request handling and log them with path and client IP.
+    # Imports From: None
+    # Exported To: FastAPI app via add_middleware
+    def __init__(self, app: FastAPI):
+        self.app = app
+        self.logger = logging.getLogger("uvicorn.error")
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        try:
+            return await self.app(scope, receive, send)
+        except Exception:
+            path = scope.get("path")
+            client = scope.get("client")
+            client_ip = client[0] if isinstance(client, (tuple, list)) and client else None
+            self.logger.exception("Unhandled exception | path=%s | ip=%s", path, client_ip)
+            raise
+
+
+# Register logging middleware first so it wraps the entire stack.
+app.add_middleware(ExceptionLoggingMiddleware)
+
+# CORS should come after logging so CORS errors are captured too.
 origins = [
     "http://localhost",
     "http://localhost:5173",
 ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -110,29 +159,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# ---- Exception Logging Middleware --------------------------------------------
-class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
-    # Purpose: Capture unhandled exceptions in request handling and log them with path and client metadata.
-    # Imports From: None
-    # Exported To: FastAPI app via add_middleware
-    def __init__(self, app: FastAPI):
-        super().__init__(app)
-        self.logger = logging.getLogger("uvicorn.error")
-
-    async def dispatch(self, request: Request, call_next):
-        try:
-            response = await call_next(request)
-            return response
-        except Exception:
-            path = request.url.path
-            client_ip = request.client.host if request.client else None
-            self.logger.exception("Unhandled exception | path=%s | ip=%s", path, client_ip)
-            raise
-
-
-app.add_middleware(ExceptionLoggingMiddleware)
 
 
 # ---- Endpoints ----------------------------------------------------------------
