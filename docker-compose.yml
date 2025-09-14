@@ -1,33 +1,48 @@
 # docker-compose.yml
-# Purpose: Define the multi-container app and mount a shared /logs directory so both containers can write error logs.
+# Purpose: Define the multi-container app, ensure host ./logs is owned by the invoking user before other services start, and mount a shared /logs directory for both containers.
 # Imports From: ./backend/Dockerfile, ./frontend/Dockerfile
 # Exported To: The Docker daemon and local ./logs folder for persisted logs.
 services:
+  # One-shot init job to fix ownership and permissions on the host's ./logs directory.
+  # This prevents root-owned files when containers write logs via the bind mount.
+  log-perms:
+    image: alpine:3.20
+    user: "0:0"
+    working_dir: /logs
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      mkdir -p /logs &&
+      chown -R ${UID:-1000}:${GID:-1000} /logs &&
+      chmod -R u+rwX,g+rwX /logs
+    volumes:
+      - ./logs:/logs
+
   backend:
+    user: "${UID}:${GID}"
     build:
       context: ./backend
+    depends_on:
+      log-perms:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
     volumes:
-      # Syncs local backend code with the container for uvicorn's --reload
       - ./backend/app:/app/app
-      # Shared logs directory mounted in both services
       - ./logs:/logs
 
   frontend:
+    user: "${UID}:${GID}"
     build:
       context: ./frontend
+    depends_on:
+      log-perms:
+        condition: service_completed_successfully
     ports:
       - "5173:5173"
     environment:
-      # Ensures Vite's watcher works reliably in Docker
       - WATCHPACK_POLLING=true
     volumes:
-      # Syncs local frontend code with the container
       - ./frontend:/app
-      # Makes backend code visible to Vite at /app/backend
       - ./backend:/app/backend
-      # Prevents local node_modules from overwriting the container's
       - /app/node_modules
-      # Shared logs directory mounted in both services
       - ./logs:/logs
