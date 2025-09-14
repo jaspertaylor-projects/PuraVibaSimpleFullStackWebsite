@@ -1,5 +1,5 @@
 # backend/app/main.py
-# Purpose: Define the FastAPI app and configure robust, deterministic logging so all backend errors are written to /logs/backend-error.log, and browser-reported errors go to /logs/frontend-error.log.
+# Purpose: Define the FastAPI app, configure robust logging to /logs, and add a safe HTTP middleware that logs unhandled exceptions without breaking Starlette's middleware contract.
 # Imports From: None
 # Exported To: None
 from __future__ import annotations
@@ -11,11 +11,12 @@ import os
 import sys
 import traceback
 from logging.handlers import RotatingFileHandler
-from typing import Any, Callable
+from typing import Any
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from starlette.middleware.base import BaseHTTPMiddleware
 
 
 # ---- Paths -------------------------------------------------------------------
@@ -47,8 +48,6 @@ def _rotating_file_handler_dict(filename: str, level: str) -> dict[str, Any]:
 def configure_logging() -> None:
     _ensure_log_dir()
 
-    # Build a dictConfig that FORCEs replacement of any existing handlers
-    # (uvicorn config is applied before importing the app; force=True guarantees ours wins).
     config = {
         "version": 1,
         "disable_existing_loggers": False,
@@ -63,37 +62,29 @@ def configure_logging() -> None:
             "frontend_file": _rotating_file_handler_dict(FRONTEND_ERROR_FILE, "ERROR"),
         },
         "loggers": {
-            # Uvicorn and FastAPI errors (tracebacks, 500s) land here
             "uvicorn": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
             "uvicorn.error": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
             "uvicorn.access": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
             "fastapi": {"level": "ERROR", "handlers": ["backend_file"], "propagate": False},
-            # Dedicated logger for client-reported frontend errors
             "frontend.client": {"level": "ERROR", "handlers": ["frontend_file"], "propagate": False},
         },
-        # Root catches anything not covered above
         "root": {"level": "ERROR", "handlers": ["backend_file"]},
     }
 
-    # Python 3.11: dictConfig does not take "force", so emulate by wiping roots first.
-    # Ensure we do not duplicate handlers in reload scenarios.
     for name in ("", "uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "frontend.client"):
         logger = logging.getLogger(name)
         logger.handlers.clear()
 
     logging.config.dictConfig(config)
 
-    # Make sure files exist early so you can "tail -f" immediately
     try:
         for f in (BACKEND_ERROR_FILE, FRONTEND_ERROR_FILE):
             if not os.path.exists(f):
                 with open(f, "a", encoding="utf-8"):
                     pass
     except Exception:
-        # If touching fails, we still proceed so in-memory handlers work.
         pass
 
-    # Route uncaught exceptions at process level into the backend log
     def _excepthook(exc_type, exc, tb):
         logger = logging.getLogger("uvicorn.error")
         logger.error("Uncaught exception\n%s", "".join(traceback.format_exception(exc_type, exc, tb)))
@@ -107,7 +98,6 @@ configure_logging()
 # ---- FastAPI App --------------------------------------------------------------
 app = FastAPI()
 
-# Allow requests from our frontend development server
 origins = [
     "http://localhost",
     "http://localhost:5173",
@@ -123,32 +113,26 @@ app.add_middleware(
 
 
 # ---- Exception Logging Middleware --------------------------------------------
-class ExceptionLoggingMiddleware:
-    # Purpose: Capture any unhandled exceptions in request handling and log them to backend-error.log with context.
+class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
+    # Purpose: Capture unhandled exceptions in request handling and log them with path and client metadata.
     # Imports From: None
     # Exported To: FastAPI app via add_middleware
     def __init__(self, app: FastAPI):
-        self.app = app
+        super().__init__(app)
         self.logger = logging.getLogger("uvicorn.error")
 
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http":
-            return await self.app(scope, receive, send)
-
-        request: Request | None = None
+    async def dispatch(self, request: Request, call_next):
         try:
-            request = Request(scope, receive=receive)
-            return await self.app(scope, receive, send)
+            response = await call_next(request)
+            return response
         except Exception:
-            path = scope.get("path")
-            client = scope.get("client")
-            client_ip = client[0] if isinstance(client, (tuple, list)) and client else None
+            path = request.url.path
+            client_ip = request.client.host if request.client else None
             self.logger.exception("Unhandled exception | path=%s | ip=%s", path, client_ip)
-            # Re-raise so FastAPI generates a proper 500
             raise
 
 
-app.middleware("http")(ExceptionLoggingMiddleware(app))  # register
+app.add_middleware(ExceptionLoggingMiddleware)
 
 
 # ---- Endpoints ----------------------------------------------------------------
