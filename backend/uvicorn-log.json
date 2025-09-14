@@ -1,7 +1,3 @@
-# backend/uvicorn-log.json
-// Purpose: Configure uvicorn's own loggers to write ERROR-level messages (including import-time syntax errors) to /logs/backend-error.log before the FastAPI app is imported.
-// Imports From: None
-// Exported To: Used by backend/Dockerfile CMD via --log-config
 {
   "version": 1,
   "disable_existing_loggers": false,

@@ -1,1 +1,11 @@
 
+2025-09-14T21:08:45+0000 | ERROR | bootstrap | Failed to import application module 'app.main:app'. Traceback follows:
+Traceback (most recent call last):
+  File "/app/app/bootstrap.py", line 44, in <module>
+    from app.main import app as asgi  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/app/main.py", line 165
+    @app.get("/api/hello)
+             ^
+SyntaxError: unterminated string literal (detected at line 165)
+

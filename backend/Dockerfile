@@ -1,4 +1,7 @@
 # backend/Dockerfile
+# Purpose: Build and run the FastAPI backend with uv and uvicorn, with hot reload and log persistence. Points uvicorn at a bootstrap module that logs import-time errors to /logs/backend-error.log.
+# Imports From: pyproject.toml, uv.lock, ./app/*, ./uvicorn-log.json
+# Exported To: docker-compose service "backend".
 
 FROM python:3.11-slim AS base
 
@@ -22,9 +25,9 @@ USER app
 RUN uv venv && uv sync --frozen
 
 COPY --chown=app:app ./app ./app
-
 COPY --chown=app:app uvicorn-log.json ./uvicorn-log.json
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-config", "/app/uvicorn-log.json"]
+# Point uvicorn at the bootstrap wrapper so import-time errors land in /logs/backend-error.log.
+CMD ["uv", "run", "uvicorn", "app.bootstrap:asgi", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-config", "/app/uvicorn-log.json"]
