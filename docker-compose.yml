@@ -1,3 +1,7 @@
+# docker-compose.yml
+# Purpose: Define the multi-container app and mount a shared /logs directory so both containers can write error logs.
+# Imports From: ./backend/Dockerfile, ./frontend/Dockerfile
+# Exported To: The Docker daemon and local ./logs folder for persisted logs.
 services:
   backend:
     build:
@@ -5,24 +9,25 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # This is the magic for hot-reloading. It syncs your local 'backend'
-      # folder with the '/app' folder inside the container. Your IDE edits
-      # local files, and uvicorn sees the changes inside the container.
-      - ./backend:/app
+      # Syncs local backend code with the container for uvicorn's --reload
+      - ./backend/app:/app/app
+      # Shared logs directory mounted in both services
+      - ./logs:/logs
 
   frontend:
     build:
       context: ./frontend
     ports:
-      # Exposes the Vite dev server port
       - "5173:5173"
     environment:
-      # Helps Vite's file watcher work more reliably in Docker
+      # Ensures Vite's watcher works reliably in Docker
       - WATCHPACK_POLLING=true
     volumes:
-      # Syncs your local 'frontend' code with the container's '/app' folder
+      # Syncs local frontend code with the container
       - ./frontend:/app
-      # This is a special "anonymous volume". It tells Docker: "For the
-      # /app/node_modules directory, use the one from the image, and IGNORE
-      # whatever is (or isn't) in the local ./frontend/node_modules folder."
+      # Makes backend code visible to Vite at /app/backend
+      - ./backend:/app/backend
+      # Prevents local node_modules from overwriting the container's
       - /app/node_modules
+      # Shared logs directory mounted in both services
+      - ./logs:/logs

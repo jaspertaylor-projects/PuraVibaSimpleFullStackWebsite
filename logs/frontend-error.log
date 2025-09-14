@@ -1,0 +1,42 @@
+[2025-09-14T18:49:53.431Z] vite.logger.error Pre-transform error: Failed to resolve import "./errors/clientErrorReporter.js" from "src/main.jsx". Does the file exist? {"error":{"plugin":"vite:import-analysis","id":"/app/src/main.jsx","pluginCode":"import { jsxDEV } from \"react/jsx-dev-runtime\";\nimport React from \"react\";\nimport ReactDOM from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport ErrorBoundary from \"./errors/ErrorBoundary.jsx\";\nimport installClientErrorReporter from \"./errors/clientErrorReporter.js\";\ninstallClientErrorReporter();\nReactDOM.createRoot(document.getElementById(\"root\")).render(\n  /* @__PURE__ */ jsxDEV(React.StrictMode, { children: /* @__PURE__ */ jsxDEV(ErrorBoundary, { children: /* @__PURE__ */ jsxDEV(App, {}, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 16,\n    columnNumber: 7\n  }, this) }, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 15,\n    columnNumber: 5\n  }, this) }, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 14,\n    columnNumber: 3\n  }, this)\n);\n","loc":{"file":"/app/src/main.jsx","line":9,"column":39},"frame":"4  |  import App from \"./App.jsx\";\n5  |  import ErrorBoundary from \"./errors/ErrorBoundary.jsx\";\n6  |  import installClientErrorReporter from \"./errors/clientErrorReporter.js\";\n   |                                          ^\n7  |  installClientErrorReporter();\n8  |  ReactDOM.createRoot(document.getElementById(\"root\")).render("},"timestamp":true}
+[2025-09-14T18:49:53.440Z] console.error 6:49:53 PM [vite] Pre-transform error: Failed to resolve import "./errors/clientErrorReporter.js" from "src/main.jsx". Does the file exist?
+[2025-09-14T18:49:53.511Z] vite.logger.error Internal server error: Failed to resolve import "./errors/clientErrorReporter.js" from "src/main.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/src/main.jsx:9:39
+  4  |  import App from "./App.jsx";
+  5  |  import ErrorBoundary from "./errors/ErrorBoundary.jsx";
+  6  |  import installClientErrorReporter from "./errors/clientErrorReporter.js";
+     |                                          ^
+  7  |  installClientErrorReporter();
+  8  |  ReactDOM.createRoot(document.getElementById("root")).render(
+      at TransformPluginContext._formatError (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:49258:41)
+      at TransformPluginContext.error (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:49253:16)
+      at normalizeUrl (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:64306:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:64438:39
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:64365:7)
+      at async PluginContainer.transform (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:49099:18)
+      at async loadAndTransform (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:51977:27)
+      at async viteTransformMiddleware (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:62105:24) {"clear":true,"timestamp":true,"error":{"plugin":"vite:import-analysis","id":"/app/src/main.jsx","pluginCode":"import { jsxDEV } from \"react/jsx-dev-runtime\";\nimport React from \"react\";\nimport ReactDOM from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport ErrorBoundary from \"./errors/ErrorBoundary.jsx\";\nimport installClientErrorReporter from \"./errors/clientErrorReporter.js\";\ninstallClientErrorReporter();\nReactDOM.createRoot(document.getElementById(\"root\")).render(\n  /* @__PURE__ */ jsxDEV(React.StrictMode, { children: /* @__PURE__ */ jsxDEV(ErrorBoundary, { children: /* @__PURE__ */ jsxDEV(App, {}, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 16,\n    columnNumber: 7\n  }, this) }, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 15,\n    columnNumber: 5\n  }, this) }, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 14,\n    columnNumber: 3\n  }, this)\n);\n","loc":{"file":"/app/src/main.jsx","line":9,"column":39},"frame":"4  |  import App from \"./App.jsx\";\n5  |  import ErrorBoundary from \"./errors/ErrorBoundary.jsx\";\n6  |  import installClientErrorReporter from \"./errors/clientErrorReporter.js\";\n   |                                          ^\n7  |  installClientErrorReporter();\n8  |  ReactDOM.createRoot(document.getElementById(\"root\")).render("}}
+[2025-09-14T18:49:53.511Z] console.error 6:49:53 PM [vite] Internal server error: Failed to resolve import "./errors/clientErrorReporter.js" from "src/main.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/src/main.jsx:9:39
+  4  |  import App from "./App.jsx";
+  5  |  import ErrorBoundary from "./errors/ErrorBoundary.jsx";
+  6  |  import installClientErrorReporter from "./errors/clientErrorReporter.js";
+     |                                          ^
+  7  |  installClientErrorReporter();
+  8  |  ReactDOM.createRoot(document.getElementById("root")).render(
+      at TransformPluginContext._formatError (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:49258:41)
+      at TransformPluginContext.error (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:49253:16)
+      at normalizeUrl (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:64306:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:64438:39
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:64365:7)
+      at async PluginContainer.transform (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:49099:18)
+      at async loadAndTransform (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:51977:27)
+      at async viteTransformMiddleware (file:///app/node_modules/.pnpm/vite@5.4.20/node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:62105:24)
+[2025-09-14T18:49:53.545Z] vite.logger.error Pre-transform error: Failed to resolve import "./errors/clientErrorReporter.js" from "src/main.jsx". Does the file exist? {"error":{"plugin":"vite:import-analysis","id":"/app/src/main.jsx","pluginCode":"import { jsxDEV } from \"react/jsx-dev-runtime\";\nimport React from \"react\";\nimport ReactDOM from \"react-dom/client\";\nimport App from \"./App.jsx\";\nimport ErrorBoundary from \"./errors/ErrorBoundary.jsx\";\nimport installClientErrorReporter from \"./errors/clientErrorReporter.js\";\ninstallClientErrorReporter();\nReactDOM.createRoot(document.getElementById(\"root\")).render(\n  /* @__PURE__ */ jsxDEV(React.StrictMode, { children: /* @__PURE__ */ jsxDEV(ErrorBoundary, { children: /* @__PURE__ */ jsxDEV(App, {}, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 16,\n    columnNumber: 7\n  }, this) }, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 15,\n    columnNumber: 5\n  }, this) }, void 0, false, {\n    fileName: \"/app/src/main.jsx\",\n    lineNumber: 14,\n    columnNumber: 3\n  }, this)\n);\n","loc":{"file":"/app/src/main.jsx","line":9,"column":39},"frame":"4  |  import App from \"./App.jsx\";\n5  |  import ErrorBoundary from \"./errors/ErrorBoundary.jsx\";\n6  |  import installClientErrorReporter from \"./errors/clientErrorReporter.js\";\n   |                                          ^\n7  |  installClientErrorReporter();\n8  |  ReactDOM.createRoot(document.getElementById(\"root\")).render("},"timestamp":true}
+[2025-09-14T18:49:53.545Z] console.error 6:49:53 PM [vite] Pre-transform error: Failed to resolve import "./errors/clientErrorReporter.js" from "src/main.jsx". Does the file exist?
