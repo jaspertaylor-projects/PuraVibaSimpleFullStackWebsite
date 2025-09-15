@@ -1,7 +1,7 @@
 # backend/app/main.py
 # Purpose: Define the FastAPI app and configure robust logging. Register a proper ASGI middleware for exception logging using add_middleware so all errors are captured in /logs.
 # Imports From: None
-# Exported To: None
+# Exported To: ./bootstrap.py
 from __future__ import annotations
 
 import datetime
