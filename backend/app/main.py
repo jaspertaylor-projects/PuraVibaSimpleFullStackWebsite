@@ -89,7 +89,7 @@ def configure_logging() -> None:
     }
 
     # Avoid duplicated handlers in reload scenarios.
-    for name in ("", "uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "frontend.client"):
+    for name in ( "", "uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "frontend.client"):
         logger = logging.getLogger(name)
         logger.handlers.clear()
 
@@ -166,7 +166,7 @@ app.add_middleware(
 def read_root() -> dict[str, Any]:
     return {
         "message": "Hello from the FastAPI & Docker Coming in Hot and fresh and tasty today!!!",
-        "timestamp": datetime.datetime.now().isoformat(),
+        "timestamp": datetim.datetime.now().isoformat(),
     }
 
 
