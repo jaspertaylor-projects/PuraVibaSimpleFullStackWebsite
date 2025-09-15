@@ -89,7 +89,14 @@ def configure_logging() -> None:
     }
 
     # Avoid duplicated handlers in reload scenarios.
-    for name in ( "", "uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "frontend.client"):
+    for name in (
+        "",
+        "uvicorn",
+        "uvicorn.error",
+        "uvicorn.access",
+        "fastapi",
+        "frontend.client",
+    ):
         logger = logging.getLogger(name)
         logger.handlers.clear()
 
@@ -139,8 +146,12 @@ class ExceptionLoggingMiddleware:
         except Exception:
             path = scope.get("path")
             client = scope.get("client")
-            client_ip = client[0] if isinstance(client, (tuple, list)) and client else None
-            self.logger.exception("Unhandled exception | path=%s | ip=%s", path, client_ip)
+            client_ip = (
+                client[0] if isinstance(client, (tuple, list)) and client else None
+            )
+            self.logger.exception(
+                "Unhandled exception | path=%s | ip=%s", path, client_ip
+            )
             raise
 
 
@@ -182,7 +193,9 @@ class FrontendErrorPayload(BaseModel):
 
 
 @app.post("/api/logs/frontend")
-def log_frontend_error(payload: FrontendErrorPayload, request: Request) -> dict[str, str]:
+def log_frontend_error(
+    payload: FrontendErrorPayload, request: Request
+) -> dict[str, str]:
     client_ip = request.client.host if request.client else None
     logger = logging.getLogger("frontend.client")
     logger.error(
