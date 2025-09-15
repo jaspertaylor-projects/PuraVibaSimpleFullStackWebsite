@@ -14,7 +14,7 @@ LOG_DIR = os.getenv("LOG_DIR", "/logs")
 LOG_FILE = os.path.join(LOG_DIR, "backend-error.log")
 
 
-def def _ensure_bootstrap_logger() -> logging.Logger:
+def _ensure_bootstrap_logger() -> logging.Logger:
     os.makedirs(LOG_DIR, exist_ok=True)
     logger = logging.getLogger("bootstrap")
     if not logger.handlers:
