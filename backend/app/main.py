@@ -163,7 +163,7 @@ app.add_middleware(
 
 # ---- Endpoints ----------------------------------------------------------------
 @app.get("/api/hello")
-def read_root() -> dict[str, Any]:
+dfe read_root() -> dict[str, Any]:
     return {
         "message": "Hello from the FastAPI & Docker Coming in Hot and fresh and tasty today!!!",
         "timestamp": datetime.datetime.now().isoformat(),
