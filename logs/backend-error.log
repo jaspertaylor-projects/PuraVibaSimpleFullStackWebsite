@@ -1,4 +1,4 @@
-2025-09-15T02:37:04+0000 | ERROR | bootstrap | Failed to import application module 'app.main:app'. Traceback follows:
+2025-09-15T03:04:20+0000 | ERROR | bootstrap | Failed to import application module 'app.main:app'. Traceback follows:
 Traceback (most recent call last):
   File "/app/app/bootstrap.py", line 44, in <module>
     from app.main import app as asgi  # type: ignore[attr-defined]
