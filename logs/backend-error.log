@@ -1,4 +1,4 @@
-2025-09-15T03:19:13+0000 | ERROR | uvicorn.error | Unhandled exception | path=/api/hello | ip=172.18.0.3
+2025-09-15T03:21:51+0000 | ERROR | uvicorn.error | Unhandled exception | path=/api/hello | ip=172.18.0.3
 Traceback (most recent call last):
   File "/app/app/main.py", line 138, in __call__
     return await self.app(scope, receive, send)
@@ -52,7 +52,7 @@ Traceback (most recent call last):
     "timestamp": datetim.datetime.now().isoformat(),
                  ^^^^^^^
 NameError: name 'datetim' is not defined. Did you mean: 'datetime'?
-2025-09-15T03:19:13+0000 | ERROR | uvicorn.error | Exception in ASGI application
+2025-09-15T03:21:51+0000 | ERROR | uvicorn.error | Exception in ASGI application
 Traceback (most recent call last):
   File "/app/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
     result = await app(  # type: ignore[func-returns-value]
@@ -126,7 +126,7 @@ Traceback (most recent call last):
     "timestamp": datetim.datetime.now().isoformat(),
                  ^^^^^^^
 NameError: name 'datetim' is not defined. Did you mean: 'datetime'?
-2025-09-15T03:19:13+0000 | ERROR | uvicorn.error | Unhandled exception | path=/api/hello | ip=172.18.0.3
+2025-09-15T03:21:51+0000 | ERROR | uvicorn.error | Unhandled exception | path=/api/hello | ip=172.18.0.3
 Traceback (most recent call last):
   File "/app/app/main.py", line 138, in __call__
     return await self.app(scope, receive, send)
@@ -180,7 +180,7 @@ Traceback (most recent call last):
     "timestamp": datetim.datetime.now().isoformat(),
                  ^^^^^^^
 NameError: name 'datetim' is not defined. Did you mean: 'datetime'?
-2025-09-15T03:19:13+0000 | ERROR | uvicorn.error | Exception in ASGI application
+2025-09-15T03:21:51+0000 | ERROR | uvicorn.error | Exception in ASGI application
 Traceback (most recent call last):
   File "/app/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
     result = await app(  # type: ignore[func-returns-value]
