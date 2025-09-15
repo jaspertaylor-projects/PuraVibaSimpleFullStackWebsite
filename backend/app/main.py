@@ -89,7 +89,14 @@ def configure_logging() -> None:
     }
 
     # Avoid duplicated handlers in reload scenarios.
-    for name in ( "", "uvicorn", "uvicorn.error", "uvicorn.access", "fastapi", "frontend.client"):
+    for name in (
+        "",
+        "uvicorn",
+        "uvicorn.error",
+        "uvicorn.access",
+        "fastapi",
+        "frontend.client",
+    ):
         logger = logging.getLogger(name)
         logger.handlers.clear()
 
