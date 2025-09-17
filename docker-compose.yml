@@ -39,6 +39,8 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/app:/app/app
+      - ./backend/pyproject.toml:/app/pyproject.toml     
+      - ./backend/uv.lock:/app/uv.lock                   
       - ./logs:/logs
 
   frontend:
