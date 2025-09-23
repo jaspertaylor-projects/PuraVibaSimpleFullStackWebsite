@@ -12,6 +12,7 @@ import sys
 import traceback
 from typing import Any
 
+import numpy as np
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
