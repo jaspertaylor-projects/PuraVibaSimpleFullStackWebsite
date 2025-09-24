@@ -13,6 +13,7 @@ import traceback
 from typing import Any
 
 import numpy as np
+import requests
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -180,6 +181,18 @@ def read_root() -> dict[str, Any]:
         "message": "Hello from the FastAPI & Docker Coming in Hot and fresh and tasty today!!!",
         "timestamp": datetime.datetime.now().isoformat(),
     }
+
+
+@app.get("/api/external-data")
+def get_external_data() -> dict[str, Any]:
+    try:
+        response = requests.get("https://jsonplaceholder.typicode.com/todos/1", timeout=5)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        # Log the error and return a user-friendly message
+        logging.getLogger("fastapi").error("Failed to fetch external data: %s", e)
+        return {"error": "Failed to fetch data from external service."}
 
 
 # ---- Frontend Error Intake ----------------------------------------------------
