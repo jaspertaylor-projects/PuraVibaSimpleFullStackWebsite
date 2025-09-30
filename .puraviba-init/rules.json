@@ -1,0 +1,354 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "id": "jKUvglKJ6V7BTB7USbpXZ",
+        "name": "Take Your Time",
+        "ruleText": "Ensure accuracy and precision in all tasks. Double-check work to prevent regressions and preserve existing features.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "RA_wjo0nukxBv480bvGwz",
+        "name": "Write Self-Documenting Code",
+        "ruleText": "Prioritize clear, human-readable code over excessive comments. Avoid explanatory comments that describe what the code is doing.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "cNKA4Z6RxKKgGw8Ggr3Q4",
+        "name": "Adhere to the DRY Principle",
+        "ruleText": "Apply the 'Don't Repeat Yourself' principle to avoid redundancy. Keep functions and components single-purpose.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "7QXO_B8F9m4yb5b2b2ZMK",
+        "name": "Treat the Cause, Not the Symptom",
+        "ruleText": "Investigate and resolve the root cause of an issue rather than implementing a temporary or superficial fix.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "bczo0U_WPkD7RP31F-SEQ",
+        "name": "Isolate Changes",
+        "ruleText": "Only make changes directly related to the task at hand. Do not modify unrelated code.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "wMcIdxq08Rrg6u0dPLxpY",
+        "name": "Always Rewrite the Entire File",
+        "ruleText": "The entire file content must be provided in the response to ensure codebase integrity, as it is used by an automated system.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "MJEg9VtCEVadWLwOhekX7",
+        "name": "Rewrite, Don't Patch",
+        "ruleText": "To avoid integration errors, always rewrite the full file. Do not use comments indicating that some code should be left unchanged.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "id": "DPH985Lv1Aqvnuo9s0Ito",
+        "name": "Output Structure Mandate:",
+        "type": "rule",
+        "ruleText": "Every code block generated must begin with the filename comment as the absolute first line. No other content, code, or even a blank newline is permitted before this filename comment. The system's parser depends on this structure",
+        "selected": true,
+        "children": []
+      },
+      {
+        "id": "vMYrSaQcTqiazhhrWoteL",
+        "name": "Include The Filename in a Comment on the First Line",
+        "type": "rule",
+        "ruleText": "Start every file (the first line) with a comment containing its full relative path from the project root. The reason for this is that the file will automatically be saved to the location as dictated by this first line comment.",
+        "selected": true,
+        "children": []
+      },
+      {
+        "id": "ySkyEGWl2wf7Z8_Hykzbt",
+        "name": "Provide Complete Copy-Paste-Able Code",
+        "type": "rule",
+        "ruleText": "Always write the entire file for any code example. The output must be complete and immediately usable without modification.",
+        "selected": true,
+        "children": []
+      }
+    ],
+    "id": "29qlk-Lkf1OLk92Ew1Xap",
+    "name": "Core Principles",
+    "selected": true,
+    "type": "group"
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "id": "wFUhCPTJ0vwn982FTb95q",
+        "name": "Use Descriptive Class Names",
+        "ruleText": "Assign descriptive, specific class names to all JSX components and HTML elements to facilitate styling and debugging.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "JOJ7seradLFmf1t4RJCyq",
+        "name": "Use Language-Appropriate Comments",
+        "ruleText": "Write all comments, including file headers, using the correct syntax for the file's language (e.g., `//` for JS, `#` for Python).",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "qmaOVTrPUY7lrblHV-JiO",
+        "name": "Prefer CSS-in-JS for Styling",
+        "ruleText": "Use CSS-in-JS for component-level styling to keep styles colocated with their logic. Global styles in `index.css` should be reserved for application-wide rules.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "id": "PYTH-STYLE-01",
+        "name": "Format Python Code with Black",
+        "ruleText": "Automatically format all Python code using the Black code formatter to ensure uniform style across the backend.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      }
+    ],
+    "id": "STYLES-GROUP-01",
+    "name": "Code Formatting & Style",
+    "selected": true,
+    "type": "group"
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "id": "D9p7gzeaBohjjXQjOrosH",
+        "name": "Document File Purpose and Dependencies",
+        "ruleText": "Begin each file with a 1-2 sentence comment describing its purpose, followed by 'Imports From:' and 'Exported To:' lists detailing its primary interactions.\n\nKeep the Imports and exports files to only files that are user written.  (I.E. no pip or npm dependencies)",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "id": "nMNvOQ428D5PwoyVfffL9",
+        "name": "Be Explicit with File Extensions in Imports",
+        "ruleText": "Always include the file extension (e.g., `.js`, `.jsx`, `.css`) in JavaScript import statements to ensure module resolution is unambiguous.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      },
+      {
+        "id": "REACT-ARCH-01",
+        "name": "Structure Features by Domain",
+        "ruleText": "Organize files and folders by feature or domain, not by type. For example, group all components, hooks, and tests related to 'user authentication' together.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      }
+    ],
+    "id": "ARCHITECTURE-GROUP-01",
+    "name": "Component & File Structure",
+    "selected": true,
+    "type": "group"
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "id": "Kf3V6rIQVJ1Y9cKJ0WO0A",
+        "name": "Follow Bulletproof React Guidelines",
+        "ruleText": "Adhere to the principles of the 'Bulletproof React' architecture for building scalable and maintainable applications.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "4mL3-tJdqCLHLvIXU8-yd",
+        "name": "Minimize `useEffect` Usage",
+        "ruleText": "Use `useEffect` sparingly. Prefer derived state, event handlers, or custom hooks for logic that does not strictly require synchronization with external systems.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "children": [],
+        "id": "Q9p7gzeaBohjjXQjOrosH",
+        "name": "Handle Numeric Input Safely",
+        "ruleText": "For numeric inputs, prevent non-numeric characters during entry. Only perform formatting or validation after the user has finished input (e.g., on blur). Revert to the previous valid value if the final input is invalid.",
+        "selected": true,
+        "type": "rule"
+      },
+      {
+        "id": "REACT-HOOKS-01",
+        "name": "Create Custom Hooks for Reusable Logic",
+        "ruleText": "Extract component logic into custom hooks when it is shared between multiple components. Name custom hooks with the `use` prefix (e.g., `useAuth`).",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      },
+      {
+        "id": "CKl7IvA10PD-ztb-6M-NS",
+        "name": "Enforce Consistent Exports",
+        "type": "rule",
+        "ruleText": "Use export default for the primary export of a file, such as a React component. Use named exports for all other secondary or utility exports from the same file. An import statement must always match the corresponding export type (import Component from ... for default exports, and import { utility } from ... for named exports).",
+        "selected": true,
+        "children": []
+      },
+      {
+        "id": "64k8ESlBalGbrTKF3fTxI",
+        "name": "React Component Export Convention",
+        "type": "rule",
+        "ruleText": "All React functional components must be declared and exported in a single statement using the `export default function` syntax. This approach ensures consistency and prevents potential issues with module resolution and hot-reloading.\n\n**Correct Example:**\nexport default function MyComponent({ prop1, prop2 }) {\n  // component logic...\n  return <div>Hello World</div>;\n}\n\n**Incorrect Example:**\nconst MyComponent = ({ prop1, prop2 }) => {\n  // component logic...\n  return <div>Hello World</div>;\n};\nexport default MyComponent;",
+        "selected": true,
+        "children": []
+      },
+      {
+        "id": "y1h4cKnSWUJ3tNRadGL-0",
+        "name": "Use icons from the lucide-react icons library",
+        "type": "rule",
+        "ruleText": "When using icons make sure to use them from the lucide react icons library",
+        "selected": true,
+        "children": []
+      },
+      {
+        "id": "i9XiufGpXD2JePbesgexn",
+        "name": "Use Javascript for .js and .jsx files",
+        "type": "rule",
+        "ruleText": "This is a javascript project not a typescript project so only write javascript code.",
+        "selected": true,
+        "children": []
+      }
+    ],
+    "id": "REACT-RULES-GROUP-01",
+    "name": "React Best Practices",
+    "selected": true,
+    "type": "group"
+  },
+  {
+    "children": [
+      {
+        "id": "ELECTRON-IPC-01",
+        "name": "Secure IPC Communication",
+        "ruleText": "Use `contextBridge` to expose specific IPC channels from the main process to the renderer process. Never expose entire modules like `ipcRenderer` or `fs` directly.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      },
+      {
+        "id": "ELECTRON-SEC-01",
+        "name": "Disable Node Integration in Renderers",
+        "ruleText": "Always set `nodeIntegration: false` and `contextIsolation: true` in BrowserWindow webPreferences for security.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      },
+      {
+        "id": "API-01",
+        "name": "Design RESTful API Endpoints",
+        "ruleText": "Design backend API endpoints following RESTful principles. Use HTTP verbs (GET, POST, PUT, DELETE) correctly and structure resource-based URIs.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      }
+    ],
+    "id": "IPC-API-GROUP-01",
+    "name": "Electron & API Interaction",
+    "selected": true,
+    "type": "group"
+  },
+  {
+    "children": [
+      {
+        "id": "1BiVxmitsMPQokcY2iDOb",
+        "name": "Assume Managed Dependencies",
+        "ruleText": "The development environment automatically handles package installation. Do not edit `package.json` or `requirements.txt` unless explicitly instructed.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      },
+      {
+        "id": "56LJHDfxsHx32p6qr75X4",
+        "name": "Use Relative API Routes",
+        "ruleText": "All API calls from the frontend must use relative paths (e.g., `/api/users`). The Vite development server is configured to proxy these requests to the backend.",
+        "selected": true,
+        "type": "rule",
+        "children": []
+      },
+      {
+        "id": "Ylif255YxNMNr7NOTo-pD",
+        "name": "Python Process Location",
+        "type": "rule",
+        "ruleText": "The python server is run from within the directory Backend/API via the electon process :\n\nfunction startBackend () {\n  const projectRoot = path.resolve(__dirname, '..', '..');\n  const apiDir      = path.join(projectRoot, 'Backend', 'API');\n  const venvPython  = path.join(apiDir, '.venv', 'bin', 'python');\n  const pythonExec  = require('fs').existsSync(venvPython) ? venvPython : 'python3';\n\n  // Only run the hot-reload server in development mode\n  const isDev = process.env.NODE_ENV === 'development';\n  const backendArgs = isDev\n    ? ['-m', 'uvicorn', 'app:app_socket', '--reload', '--port', '5001']\n    : ['app.py']; \n}\nSo all imports should be relative to that location.",
+        "selected": false,
+        "children": []
+      }
+    ],
+    "id": "DEV-ENV-GROUP-01",
+    "name": "Development Environment",
+    "selected": true,
+    "type": "group"
+  },
+  {
+    "id": "_8ZE-RLvE2b_KzcDNlgAO",
+    "name": "API Version",
+    "type": "group",
+    "selected": true,
+    "children": [
+      {
+        "id": "-CWQkj4AMinQg8XWc_n7u",
+        "name": "Only rewrite the files that are neccesarry",
+        "type": "rule",
+        "ruleText": "Only include files that are being updated in your response.  Some of the files provided may be irrelevant to the task at hand.",
+        "selected": true,
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "92S00aOs7rvH1Q-0iu88k",
+    "name": "Web Extension Version",
+    "type": "group",
+    "selected": false,
+    "children": [
+      {
+        "id": "_nF_wo0aw_4KfSefZ0q0b",
+        "name": "Filename as a top level comment",
+        "type": "rule",
+        "ruleText": "The file will automatically be saved to the location as dictated by this first line comment.\n\nEven though the files you see don't have this as a comment line its only because that line is stripped by the automated tooling.  Mainly so that json files etc wont throw errors.\n\nThe filename comment must be within the code blocks in the web response as this is the snippet that is sent to the code base.",
+        "selected": false,
+        "children": []
+      },
+      {
+        "id": "Y_pJ7GK8TblmcBEgk3iEm",
+        "name": "Every File in its own code block",
+        "type": "rule",
+        "ruleText": "Put the code samples each into their own code blocks. One code block per file.",
+        "selected": false,
+        "children": []
+      },
+      {
+        "id": "RjkV4Welr94puRyGh5z5G",
+        "name": "Use Single Line Comments",
+        "type": "rule",
+        "ruleText": "Use single-line comments (e.g., // or #). The code parser does not support multi-line block comments (e.g., /* ... */).",
+        "selected": false,
+        "children": []
+      },
+      {
+        "id": "to_3fsYnumawvPfeNN0sN",
+        "name": "Provide All Responses in Chat",
+        "type": "rule",
+        "ruleText": "Place all responses, including code blocks, directly in the chat. Do not use separate views, as automated tooling depends on this format.",
+        "selected": false,
+        "children": []
+      }
+    ]
+  }
+]

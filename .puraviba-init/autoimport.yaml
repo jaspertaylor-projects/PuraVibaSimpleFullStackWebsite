@@ -1,0 +1,33 @@
+# SimpleFullStackWebsite/.puraviba/autoimport.yaml
+# Purpose: Configuration for FlowCraft's auto-import feature when working on the dockerized SimpleFullStackWebsite. Aligns commands with service users and hot-reload flows.
+# Imports From: FlowCraft/Backend/API/auto_import.py
+# Exported To: docker compose runtime via exec
+
+version: "1.1"
+
+environments:
+  - id: backend
+    docker_service: backend
+    language: python
+    workdir: /app
+    package_manager: uv
+    commands:
+      # uv pip mirrors pip CLI; --format=json enables machine parsing.
+      install: "uv pip install {packages}"
+      list: "uv pip list --format=json"
+    manifest_files:
+      - pyproject.toml
+      - uv.lock
+
+  - id: frontend
+    docker_service: frontend
+    language: javascript
+    workdir: /app
+    package_manager: pnpm
+    commands:
+      # The auto-import runtime wraps this with su-exec and chown to avoid root-owned node_modules.
+      install: "pnpm add {packages}"
+      list: "pnpm list --json"
+    manifest_files:
+      - package.json
+      - pnpm-lock.yaml

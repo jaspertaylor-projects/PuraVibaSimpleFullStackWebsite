@@ -1,0 +1,13 @@
+{
+  "hiddenFiles": [],
+  "focusedFiles": [
+    "/home/anonymous/TheCode/SimpleFullStackWebsite/backend/pyproject.toml",
+    "/home/anonymous/TheCode/SimpleFullStackWebsite/backend/Dockerfile",
+    "/home/anonymous/TheCode/SimpleFullStackWebsite/backend/app/main.py",
+    "/home/anonymous/TheCode/SimpleFullStackWebsite/backend/uv.lock",
+    "/home/anonymous/TheCode/SimpleFullStackWebsite/logs/backend-error.log"
+  ],
+  "commitMessage": "fix: auto-fix attempt 1",
+  "description": "A scaffolding for a simple fullstack web application. Dockerized with hot reloading.",
+  "selectedExternalSources": []
+}
