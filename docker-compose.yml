@@ -36,7 +36,7 @@ services:
       - UV_CACHE_DIR=/tmp/uv-cache
       - PIP_CACHE_DIR=/tmp/pip-cache
     ports:
-      - "8000:8000"
+      - "${HOST_BACKEND_PORT:-8000}:8000"
     volumes:
       - ./backend/app:/app/app
       - ./backend/pyproject.toml:/app/pyproject.toml     
@@ -57,7 +57,7 @@ services:
         exec su-exec ${UID:-1000}:${GID:-1000} pnpm run dev
       "
     ports:
-      - "5173:5173"
+      - "${HOST_FRONTEND_PORT:-5173}:5173"
     environment:
       - WATCHPACK_POLLING=true
     volumes:
