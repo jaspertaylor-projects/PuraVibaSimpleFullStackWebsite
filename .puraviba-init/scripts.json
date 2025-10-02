@@ -3,9 +3,12 @@
     "path": "./",
     "script": "docker compose build --pull"
   },
-
   "Launch": {
     "path": "./",
     "script": "docker compose up"
+  },
+  "Shutdown": {
+    "path": "./",
+    "script": "docker compose down --volumes --remove-orphans"
   }
 }
