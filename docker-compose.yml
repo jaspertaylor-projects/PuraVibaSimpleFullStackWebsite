@@ -1,8 +1,9 @@
 # docker-compose.yml
-# Purpose: Define the multi-container app, fix ownership for host ./logs, and ensure services have correct permissions for hot-reloading and logging.
-#          Persist backend Python packages across `down`/`up` by bind-mounting ./backend/.venv, and keep frontend node_modules in a named volume.
+# Purpose: Define the multi-container app, fix ownership for host ./logs and ./backend/.venv,
+#          and ensure services have correct permissions for hot-reloading and logging.
+#          Keeps Python venv and node_modules persistent across down/up.
 # Imports From: ./backend/Dockerfile, ./frontend/Dockerfile
-# Exported To: The Docker daemon and local ./logs folder for persisted logs.
+# Exported To: The Docker daemon and local ./logs + ./backend/.venv for persistence.
 services:
   # Ensure host ./logs is owned by ${UID:-1000}:${GID:-1000} before others start.
   log-perms:
@@ -25,13 +26,30 @@ services:
     volumes:
       - ./logs:/logs
 
+  # Ensure host ./backend/.venv exists and is owned correctly so uv can write to it.
+  venv-perms:
+    image: alpine:3.20
+    user: "0:0"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        mkdir -p /venv
+        chown -R ${UID:-1000}:${GID:-1000} /venv
+        chmod -R u+rwX,g+rwX /venv
+        echo "venv-perms: fixed ownership of /venv"
+    volumes:
+      - ./backend/.venv:/venv
+
   backend:
-    # Run as the host user's UID:GID so edits to bind mounts are owned by you.
     user: "${UID:-1000}:${GID:-1000}"
     build:
       context: ./backend
     depends_on:
       log-perms:
+        condition: service_completed_successfully
+      venv-perms:
         condition: service_completed_successfully
     environment:
       - HOME=/tmp
@@ -49,25 +67,29 @@ services:
       - ./backend/.venv:/app/.venv
       # Shared logs directory
       - ./logs:/logs
-    # Ensure the project venv exists & is synced on each start, then run the app.
+    # Make venv/sync best-effort so the server still starts, then run uvicorn.
     command: >
       sh -lc "
         uv venv >/dev/null 2>&1 || true &&
-        uv sync --frozen || uv sync &&
+        uv sync --frozen || uv sync || true &&
         exec uv run uvicorn app.bootstrap:asgi --host 0.0.0.0 --port 8000 --reload --log-config /app/uvicorn-log.json
       "
 
   frontend:
-    # This service starts as root to fix permissions for node_modules, then steps down.
+    # This service starts as root to fix permissions, then steps down.
     build:
       context: ./frontend
     depends_on:
       log-perms:
         condition: service_completed_successfully
+      backend:
+        condition: service_started
     command: >
       sh -lc "
         mkdir -p /app/node_modules &&
         chown -R ${UID:-1000}:${GID:-1000} /app/node_modules &&
+        # First-run self-heal: install if the pnpm store is empty
+        test -d /app/node_modules/.pnpm || pnpm install --frozen-lockfile || pnpm install ;
         exec su-exec ${UID:-1000}:${GID:-1000} pnpm run dev
       "
     ports:
