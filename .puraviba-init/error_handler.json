@@ -2,7 +2,7 @@
   "auto": true,
   "errorFiles": [
     "logs/backend-error.log",
-    "logs/backend-error.log"
+    "logs/frontend-error.log"
   ],
   "fix_attempts": 2
 }

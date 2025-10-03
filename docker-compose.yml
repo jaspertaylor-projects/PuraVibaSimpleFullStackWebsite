@@ -1,5 +1,6 @@
 # docker-compose.yml
 # Purpose: Define the multi-container app, fix ownership for host ./logs, and ensure services have correct permissions for hot-reloading and logging.
+#          Persist backend Python packages across `down`/`up` by bind-mounting ./backend/.venv, and keep frontend node_modules in a named volume.
 # Imports From: ./backend/Dockerfile, ./frontend/Dockerfile
 # Exported To: The Docker daemon and local ./logs folder for persisted logs.
 services:
@@ -25,6 +26,7 @@ services:
       - ./logs:/logs
 
   backend:
+    # Run as the host user's UID:GID so edits to bind mounts are owned by you.
     user: "${UID:-1000}:${GID:-1000}"
     build:
       context: ./backend
@@ -35,24 +37,36 @@ services:
       - HOME=/tmp
       - UV_CACHE_DIR=/tmp/uv-cache
       - PIP_CACHE_DIR=/tmp/pip-cache
+      - LOG_DIR=/logs
     ports:
       - "${HOST_BACKEND_PORT:-8000}:8000"
     volumes:
+      # App source and lockfiles (hot reload + lock sync)
       - ./backend/app:/app/app
-      - ./backend/pyproject.toml:/app/pyproject.toml     
-      - ./backend/uv.lock:/app/uv.lock                   
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/uv.lock:/app/uv.lock
+      # Persist the virtualenv so runtime-installed deps survive container recreation
+      - ./backend/.venv:/app/.venv
+      # Shared logs directory
       - ./logs:/logs
+    # Ensure the project venv exists & is synced on each start, then run the app.
+    command: >
+      sh -lc "
+        uv venv >/dev/null 2>&1 || true &&
+        uv sync --frozen || uv sync &&
+        exec uv run uvicorn app.bootstrap:asgi --host 0.0.0.0 --port 8000 --reload --log-config /app/uvicorn-log.json
+      "
 
   frontend:
-    # This service starts as root to fix permissions, then steps down.
+    # This service starts as root to fix permissions for node_modules, then steps down.
     build:
       context: ./frontend
     depends_on:
       log-perms:
         condition: service_completed_successfully
-    # New command to fix permissions and run the dev server as the correct user.
     command: >
-      sh -c "
+      sh -lc "
+        mkdir -p /app/node_modules &&
         chown -R ${UID:-1000}:${GID:-1000} /app/node_modules &&
         exec su-exec ${UID:-1000}:${GID:-1000} pnpm run dev
       "
@@ -63,9 +77,9 @@ services:
     volumes:
       # Project source (hot reload)
       - ./frontend:/app
-      # Make backend source visible to Vite at /app/backend
+      # Make backend source visible to Vite at /app/backend (for full reload on backend changes)
       - ./backend:/app/backend
-      # Use a named volume for node_modules
+      # Use a named volume for node_modules (persists across down/up)
       - frontend_node_modules:/app/node_modules
       # Shared logs directory
       - ./logs:/logs
