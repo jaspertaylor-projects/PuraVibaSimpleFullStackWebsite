@@ -1,5 +1,5 @@
 // frontend/src/errors/clientErrorReporter.js
-// Purpose: Install global listeners to capture browser runtime errors and POST them to the backend /api/logs/frontend endpoint.
+// Purpose: Install global listeners to capture browser runtime errors, unhandled promise rejections, and console errors, and POST them to the backend /api/logs/frontend endpoint.
 // Imports From: None
 // Exported To: frontend/src/main.jsx
 let installed = false;
@@ -58,4 +58,42 @@ export default function installClientErrorReporter() {
     },
     true
   );
+
+  const wrapConsoleMethod = (method) => {
+    const original = console[method];
+    console[method] = (...args) => {
+      original.apply(console, args);
+
+      const message = args
+        .map((arg) => {
+          if (arg instanceof Error) {
+            return arg.stack || arg.message;
+          }
+          try {
+            return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
+          } catch (e) {
+            return '[Unserializable Object]';
+          }
+        })
+        .join(' ');
+
+      // If an error object was not passed, generate a stack trace.
+      const stack =
+        args.find((arg) => arg instanceof Error)?.stack || new Error().stack;
+
+      const payload = {
+        message: `console.${method}: ${message}`,
+        stack,
+        source: 'console',
+        line: null,
+        col: null,
+        href: window.location?.href || null,
+        userAgent: navigator.userAgent || null,
+      };
+      safeFetch(endpoint, payload);
+    };
+  };
+
+  wrapConsoleMethod('error');
+  wrapConsoleMethod('warn');
 }
