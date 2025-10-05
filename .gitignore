@@ -19,6 +19,7 @@ build/
 .pytest_cache/
 .mypy_cache/
 .tox/
+Backend/API/.env
 
 #Node
 node_modules/

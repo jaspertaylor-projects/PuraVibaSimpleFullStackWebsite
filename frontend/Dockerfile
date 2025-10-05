@@ -1,5 +1,5 @@
 # frontend/Dockerfile
-# Purpose: Build the Vite/React frontend, including a utility for permissions management in development.
+# Purpose: Build the Vite/React frontend with a stable, writable pnpm store to prevent ERR_PNPM_UNEXPECTED_STORE.
 # Imports From: package.json, pnpm-lock.yaml, ./src/*
 # Exported To: docker-compose service "frontend".
 # syntax=docker/dockerfile:1.4
@@ -7,19 +7,20 @@
 # ---- Base Image ----
 FROM node:20-alpine AS base
 ENV PNPM_HOME="/pnpm"
+ENV PNPM_STORE_DIR="/pnpm/store"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-# Add su-exec for easy user switching
+# Add su-exec for easy user switching in dev
 RUN apk add --no-cache su-exec
+# Make sure the pnpm store exists and is writable by non-root (dev convenience)
+RUN mkdir -p /pnpm/store && chmod -R 0777 /pnpm
 
 # ---- Dependencies ----
 FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 
-# THE CHANGE IS HERE: We mount a persistent cache for the pnpm store.
-# id=pnpm is a unique name for our cache.
-# target=/pnpm/store is where pnpm keeps its global package cache.
+# Use a persistent cache for the pnpm store during build. Store path matches PNPM_STORE_DIR.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # ---- Development ----

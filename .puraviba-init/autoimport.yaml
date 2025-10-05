@@ -1,6 +1,6 @@
 # .puraviba/autoimport.yaml
-# Purpose: Configuration for FlowCraft's auto-import. Uses uv for Python and pnpm for JS.
-#          For pnpm, we list with --depth=-1 to capture top-level deps reliably for workspaces.
+# Purpose: Shell-safe, cross-OS auto-import. Uses a single-line install command to avoid BusyBox 'ash'
+#          parse errors, pins the pnpm store, and self-heals store mismatches.
 # Imports From: FlowCraft/Backend/API/auto_import.py
 # Exported To: docker compose runtime via exec
 version: "1.1"
@@ -12,7 +12,6 @@ environments:
     workdir: /app
     package_manager: uv
     commands:
-      # uv pip mirrors pip CLI; --format=json enables machine parsing.
       install: "uv pip install {packages}"
       list: "uv pip list --format=json"
     manifest_files:
@@ -25,8 +24,13 @@ environments:
     workdir: /app
     package_manager: pnpm
     commands:
-      install: "pnpm add {packages}"
+      # Keep list simple; auto_import.py already runs it as the node_modules owner when possible.
       list: "pnpm list --depth=-1 --json"
+
+      # IMPORTANT: single-line to avoid introducing a trailing newline before '; else' in auto_import.py.
+      # auto_import.py will run:
+      #   su-exec "$OWNER" <this command> ; else <this command> ; fi
+      install: 'sh -lc "set -eu; mkdir -p /pnpm/store; pnpm config set store-dir /pnpm/store --location project >/dev/null 2>&1 || true; pnpm config set virtual-store-dir node_modules/.pnpm --location project >/dev/null 2>&1 || true; mods=\"/app/node_modules/.pnpm/.modules.yaml\"; if [ -f \"$mods\" ] && ! grep -q /pnpm/store \"$mods\"; then pnpm install --force; fi; cleaned=\"\"; for p in {packages}; do [ \"$p\" = \".\" ] && continue; case \" $cleaned \" in *\" $p \"*) ;; *) cleaned=\"$cleaned $p\";; esac; done; cleaned=\"${cleaned# }\"; if [ -n \"$cleaned\" ]; then pnpm add $cleaned; else echo \"[auto-import] Nothing to add\"; fi"'
     manifest_files:
       - package.json
       - pnpm-lock.yaml

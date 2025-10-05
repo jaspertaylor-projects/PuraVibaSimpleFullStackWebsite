@@ -1,7 +1,6 @@
 # docker-compose.yml
-# Purpose: Define the multi-container app, fix ownership for host ./logs and ./backend/.venv,
-#          and ensure services have correct permissions for hot-reloading and logging.
-#          Keeps Python venv and node_modules persistent across down/up.
+# Purpose: Ensure frontend dependencies are always in-sync at container start, auto-install missing modules
+#          (e.g., lucide-react), and preserve hot reloading. Also maintains backend venv and shared logs.
 # Imports From: ./backend/Dockerfile, ./frontend/Dockerfile
 # Exported To: The Docker daemon and local ./logs + ./backend/.venv for persistence.
 services:
@@ -76,7 +75,6 @@ services:
       "
 
   frontend:
-    # This service starts as root to fix permissions, then steps down.
     build:
       context: ./frontend
     depends_on:
@@ -84,12 +82,35 @@ services:
         condition: service_completed_successfully
       backend:
         condition: service_started
+    # Preflight step:
+    # - Pin pnpm store/virtual store (must match Dockerfile/.npmrc).
+    # - Reinstall if node_modules is missing OR metadata is stale vs lockfile/package.json.
+    # - Auto-install lucide-react if require.resolve fails (covers IDE-driven installs & cold starts).
+    # - Drop privileges for the dev server via su-exec.
     command: >
       sh -lc "
-        mkdir -p /app/node_modules &&
-        chown -R ${UID:-1000}:${GID:-1000} /app/node_modules &&
-        # First-run self-heal: install if the pnpm store is empty
-        test -d /app/node_modules/.pnpm || pnpm install --frozen-lockfile || pnpm install ;
+        set -eu
+        mkdir -p /app/node_modules
+        chown -R ${UID:-1000}:${GID:-1000} /app/node_modules
+
+        pnpm config set store-dir /pnpm/store --location project >/dev/null 2>&1 || true
+        pnpm config set virtual-store-dir node_modules/.pnpm --location project >/dev/null 2>&1 || true
+
+        MODS=/app/node_modules/.pnpm/.modules.yaml
+        NEED_REINSTALL=0
+        [ ! -d /app/node_modules/.pnpm ] && NEED_REINSTALL=1
+        [ ! -f \"$MODS\" ] && NEED_REINSTALL=1
+        [ /app/pnpm-lock.yaml -nt \"$MODS\" ] && NEED_REINSTALL=1
+        [ /app/package.json -nt \"$MODS\" ] && NEED_REINSTALL=1
+
+        if [ \"$NEED_REINSTALL\" -eq 1 ]; then
+          echo '[frontend] Installing dependencies...'
+          pnpm install --frozen-lockfile || pnpm install
+        fi
+
+        # Ensure lucide-react is present for App.jsx imports
+        node -e \"require.resolve('lucide-react')\" 2>/dev/null || pnpm add lucide-react
+
         exec su-exec ${UID:-1000}:${GID:-1000} pnpm run dev
       "
     ports:
