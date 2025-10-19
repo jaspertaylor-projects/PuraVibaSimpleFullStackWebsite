@@ -6,7 +6,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import ErrorBoundary from './errors/ErrorBoundary.jsx';
-import installClientErrorReporter from './errors/clientErrorReporter.js';
 import theme from './theme.js';
 
 // Apply theme colors as CSS variables to the root element
@@ -15,12 +14,8 @@ Object.entries(theme).forEach(([key, value]) => {
   document.documentElement.style.setProperty(`--color-${key}`, value);
 });
 
-installClientErrorReporter();
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
       <App />
-    </ErrorBoundary>
   </React.StrictMode>
 );

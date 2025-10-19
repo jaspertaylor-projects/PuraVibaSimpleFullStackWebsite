@@ -106,7 +106,7 @@ export default function App() {
           Full-Stack Docker App
         </h1>
         <p className="app-subtitle" style={styles.appSubtitle}>
-          FastAPI + React with Hot-Reloading Test
+          FastAPI + React with Hot-Reloading Tset
         </p>
       </header>
       <main className="api-card" style={styles.apiCard}>
