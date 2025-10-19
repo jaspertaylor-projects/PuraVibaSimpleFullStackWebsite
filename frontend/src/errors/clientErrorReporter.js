@@ -1,99 +1,103 @@
-// frontend/src/errors/clientErrorReporter.js
-// Purpose: Install global listeners to capture browser runtime errors, unhandled promise rejections, and console errors, and POST them to the backend /api/logs/frontend endpoint.
-// Imports From: None
-// Exported To: frontend/src/main.jsx
-let installed = false;
+// frontend/src/clientErrorReporter.js
+// Purpose: Capture browser runtime errors and unhandled promise rejections, then POST them to /api/client-error with dedupe and keepalive so the backend appends to logs/frontend-error.log.
+// Imports From: (none)
+// Exported To: Loaded by vite.config.js transformIndexHtml injection.
 
-function safeFetch(url, payload) {
+const RECENT_TTL_MS = 5000;
+const recent = new Map();
+
+function now() {
+  return Date.now();
+}
+
+function gc() {
+  const t = now();
+  for (const [k, exp] of recent.entries()) {
+    if (exp <= t) recent.delete(k);
+  }
+}
+
+function sig(obj) {
+  const m = String(obj.message || '');
+  const s = String(obj.stack || '');
+  const src = String(obj.source || '');
+  const ln = Number.isFinite(obj.line) ? obj.line : 0;
+  const col = Number.isFinite(obj.col) ? obj.col : 0;
+  return `${m}|${s}|${src}|${ln}|${col}`;
+}
+
+function post(payload) {
   try {
-    fetch(url, {
+    // keepalive lets the browser send during unload too
+    fetch('/api/client-error', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       keepalive: true,
+      credentials: 'same-origin',
     }).catch(() => {});
   } catch {
     // ignore
   }
 }
 
-export default function installClientErrorReporter() {
-  if (installed || typeof window === 'undefined') return;
-  installed = true;
+function send(entry) {
+  gc();
+  const key = sig(entry);
+  const exp = recent.get(key);
+  if (exp && exp > now()) return;
+  recent.set(key, now() + RECENT_TTL_MS);
 
-  const endpoint = '/api/logs/frontend';
-
-  window.addEventListener(
-    'error',
-    (event) => {
-      const payload = {
-        message: event?.error?.message || event?.message || 'UnknownError',
-        stack: event?.error?.stack || null,
-        source: event?.filename || null,
-        line: Number.isFinite(event?.lineno) ? event.lineno : null,
-        col: Number.isFinite(event?.colno) ? event.colno : null,
-        href: window.location?.href || null,
-        userAgent: navigator.userAgent || null,
-      };
-      safeFetch(endpoint, payload);
-    },
-    true
-  );
-
-  window.addEventListener(
-    'unhandledrejection',
-    (event) => {
-      const reason = event?.reason;
-      const payload = {
-        message:
-          (reason && (reason.message || String(reason))) || 'UnhandledRejection',
-        stack: reason && reason.stack ? reason.stack : null,
-        source: null,
-        line: null,
-        col: null,
-        href: window.location?.href || null,
-        userAgent: navigator.userAgent || null,
-      };
-      safeFetch(endpoint, payload);
-    },
-    true
-  );
-
-  const wrapConsoleMethod = (method) => {
-    const original = console[method];
-    console[method] = (...args) => {
-      original.apply(console, args);
-
-      const message = args
-        .map((arg) => {
-          if (arg instanceof Error) {
-            return arg.stack || arg.message;
-          }
-          try {
-            return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
-          } catch (e) {
-            return '[Unserializable Object]';
-          }
-        })
-        .join(' ');
-
-      // If an error object was not passed, generate a stack trace.
-      const stack =
-        args.find((arg) => arg instanceof Error)?.stack || new Error().stack;
-
-      const payload = {
-        message: `console.${method}: ${message}`,
-        stack,
-        source: 'console',
-        line: null,
-        col: null,
-        href: window.location?.href || null,
-        userAgent: navigator.userAgent || null,
-      };
-      safeFetch(endpoint, payload);
-    };
-  };
-
-  wrapConsoleMethod('error');
-  wrapConsoleMethod('warn');
+  post({
+    severity: entry.severity || 'error',
+    message: entry.message || '',
+    stack: entry.stack || '',
+    source: entry.source || '',
+    line: Number.isFinite(entry.line) ? entry.line : 0,
+    col: Number.isFinite(entry.col) ? entry.col : 0,
+    url: String(location.href || ''),
+    userAgent: navigator.userAgent || '',
+    componentStack: entry.componentStack || '',
+  });
 }
+
+function onWindowError(event) {
+  try {
+    const e = event?.error;
+    const payload = {
+      severity: 'error',
+      message: (e && e.message) || event?.message || 'Uncaught error',
+      stack: (e && e.stack) || '',
+      source: event?.filename || '',
+      line: Number.isFinite(event?.lineno) ? event.lineno : 0,
+      col: Number.isFinite(event?.colno) ? event.colno : 0,
+    };
+    send(payload);
+  } catch {
+    // ignore
+  }
+}
+
+function onUnhandledRejection(event) {
+  try {
+    const r = event?.reason;
+    const isErr = r && typeof r === 'object' && ('message' in r || 'stack' in r);
+    const payload = {
+      severity: 'error',
+      message: isErr ? String(r.message || 'Unhandled rejection') : String(r || 'Unhandled rejection'),
+      stack: isErr ? String(r.stack || '') : '',
+      source: '',
+      line: 0,
+      col: 0,
+    };
+    send(payload);
+  } catch {
+    // ignore
+  }
+}
+
+(function init() {
+  if (typeof window === 'undefined') return;
+  window.addEventListener('error', onWindowError, true);
+  window.addEventListener('unhandledrejection', onUnhandledRejection, true);
+})();
