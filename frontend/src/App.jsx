@@ -2,7 +2,7 @@
 // Purpose: Display backend API data with a manual refresh, using a relative API path so Vite's proxy routes requests to the backend.
 // Imports From: ./App.css, ./theme.js
 // Exported To: None
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEfect } from 'react';
 import './App.css'; // For global styles
 import theme from './theme.js';
 

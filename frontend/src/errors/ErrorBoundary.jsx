@@ -1,7 +1,8 @@
 // frontend/src/errors/ErrorBoundary.jsx
-// Purpose: Catch React render lifecycle errors and report them to the backend so they land in backend-error.log.
+// Purpose: Catch React render/lifecycle errors, render a friendly fallback, and report details (incl. componentStack) to /api/client-error so they land in logs/frontend-error.log.
 // Imports From: ../theme.js
 // Exported To: frontend/src/main.jsx
+
 import React from 'react';
 import theme from '../theme.js';
 
@@ -12,35 +13,43 @@ export default class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, message: error?.message || 'RenderError' };
+    return { hasError: true, message: (error && error.message) || 'RenderError' };
   }
 
   componentDidCatch(error, info) {
     try {
-      fetch('/api/logs/frontend', {
+      const payload = {
+        severity: 'error',
+        message: (error && error.message) || 'RenderError',
+        stack: (error && error.stack) || '',
+        source: 'ReactErrorBoundary',
+        line: 0,
+        col: 0,
+        url:
+          typeof window !== 'undefined' && window.location && window.location.href
+            ? window.location.href
+            : '',
+        userAgent:
+          typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : '',
+        componentStack: (info && info.componentStack) || '',
+      };
+
+      fetch('/api/client-error', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: error?.message || 'RenderError',
-          stack: error?.stack || null,
-          source: 'ReactErrorBoundary',
-          line: null,
-          col: null,
-          href: window.location?.href || null,
-          userAgent: navigator.userAgent || null,
-          componentStack: info?.componentStack || null,
-        }),
+        credentials: 'same-origin',
         keepalive: true,
+        body: JSON.stringify(payload),
       }).catch(() => {});
     } catch {
-      // ignore
+      // Best-effort reporting; never block UI.
     }
   }
 
   render() {
     if (this.state.hasError) {
       const styles = {
-        errorBoundaryContainer: {
+        pvErrorBoundaryContainer: {
           backgroundColor: theme.globalBackground,
           color: theme.textPrimary,
           minHeight: '100vh',
@@ -52,25 +61,30 @@ export default class ErrorBoundary extends React.Component {
           fontFamily: 'sans-serif',
           boxSizing: 'border-box',
         },
-        errorBoundaryTitle: {
+        pvErrorBoundaryTitle: {
           color: theme.error,
+          marginBottom: '1rem',
         },
-        errorBoundaryMessage: {
+        pvErrorBoundaryMessage: {
           color: theme.textSecondary,
           fontFamily: 'monospace',
           backgroundColor: theme.secondary,
           padding: '1rem',
           borderRadius: '8px',
           maxWidth: '800px',
-          wordBreak: 'break-all',
+          wordBreak: 'break-word',
           textAlign: 'left',
         },
       };
 
       return (
-        <div className="error-boundary" style={styles.errorBoundaryContainer}>
-          <h1 style={styles.errorBoundaryTitle}>Something went wrong</h1>
-          <p style={styles.errorBoundaryMessage}>{this.state.message}</p>
+        <div className="pv-error-boundary" style={styles.pvErrorBoundaryContainer}>
+          <h1 className="pv-error-boundary__title" style={styles.pvErrorBoundaryTitle}>
+            Something went wrong
+          </h1>
+          <p className="pv-error-boundary__message" style={styles.pvErrorBoundaryMessage}>
+            {this.state.message}
+          </p>
         </div>
       );
     }
