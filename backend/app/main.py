@@ -179,7 +179,7 @@ app.add_middleware(
 def read_root() -> dict[str, Any]:
     return {
         "message": "Hello from the FastAPI & Docker Coming in Hot and fresh and tasty today!!!",
-        "timestamp": datetime.datetiem.now().isoformat(),
+        "timestamp": datetime.datetime.now().isoformat(),
     }
 
 
