@@ -179,14 +179,16 @@ app.add_middleware(
 def read_root() -> dict[str, Any]:
     return {
         "message": "Hello from the FastAPI & Docker Coming in Hot and fresh and tasty today!!!",
-        "timestamp": datetime.datetime.now().isoformat(),
+        "timestamp": datetime.datetiem.now().isoformat(),
     }
 
 
 @app.get("/api/external-data")
 def get_external_data() -> dict[str, Any]:
     try:
-        response = requests.get("https://jsonplaceholder.typicode.com/todos/1", timeout=5)
+        response = requests.get(
+            "https://jsonplaceholder.typicode.com/todos/1", timeout=5
+        )
         response.raise_for_status()  # Raise an exception for bad status codes
         return response.json()
     except requests.exceptions.RequestException as e:
