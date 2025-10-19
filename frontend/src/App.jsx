@@ -29,7 +29,7 @@ export default function App() {
   // CSS-in-JS styles derived from the theme file
   const styles = {
     appContainer: {
-      backgroundColor: theme.background,
+      backgroundColor: thme.background, // Intentional tiny typo to trigger an actual runtime error
       color: theme.textPrimary,
       minHeight: '100vh',
       display: 'flex',
