@@ -1,0 +1,10 @@
+{
+  "auto": true,
+  "errorFiles": [
+    "logs/backend-error.log",
+    "logs/frontend-error.log"
+  ],
+  "fix_attempts": 2,
+  "quiet_ms": 1000,
+  "max_wait_ms": 8000
+}

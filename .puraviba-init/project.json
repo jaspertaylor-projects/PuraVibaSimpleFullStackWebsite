@@ -1,0 +1,12 @@
+{
+  "hiddenFiles": [],
+  "focusedFiles": [
+    "/home/anonymous/TheCode/PuraVibaSimpleFullStackWebsite/backend/app/main.py",
+    "/home/anonymous/TheCode/PuraVibaSimpleFullStackWebsite/backend/app/bootstrap.py",
+    "/home/anonymous/TheCode/PuraVibaSimpleFullStackWebsite/logs/backend-error.log"
+  ],
+  "commitMessage": "fix: auto-fix attempt 1",
+  "description": "A scaffolding for a simple fullstack web application. Dockerized with hot reloading.  Meant to coordinate with a new AI first IDE (Pura Viba IDE).",
+  "selectedExternalSources": [],
+  "showAllFiles": false
+}

@@ -1,0 +1,31 @@
+# .puraviba/autoimport.yaml
+# Purpose: Map languages to Docker services and define list/install commands so PuraViba can auto-install missing packages inside containers and persist across restarts.
+# Imports From: FlowCraft/Backend/API/auto_import.py (runtime)
+# Exported To: docker compose runtime via exec
+
+version: "1.1"
+
+environments:
+  - id: backend
+    docker_service: backend
+    language: python
+    workdir: /app
+    package_manager: uv
+    commands:
+      install: "uv pip install {packages}"
+      list: "uv pip list --format=json"
+    manifest_files:
+      - pyproject.toml
+      - uv.lock
+
+  - id: frontend
+    docker_service: frontend
+    language: javascript
+    workdir: /app
+    package_manager: pnpm
+    commands:
+      list: "pnpm list --depth=-1 --json"
+      install: 'sh -lc "set -eu; mkdir -p /pnpm/store; pnpm config set store-dir /pnpm/store --location project >/dev/null 2>&1 || true; pnpm config set virtual-store-dir node_modules/.pnpm --location project >/dev/null 2>&1 || true; mods=\"/app/node_modules/.pnpm/.modules.yaml\"; if [ -f \"$mods\" ] && ! grep -q /pnpm/store \"$mods\"; then pnpm install --force; fi; cleaned=\"\"; for p in {packages}; do [ \"$p\" = \".\" ] && continue; case \" $cleaned \" in *\" $p \"*) ;; *) cleaned=\"$cleaned $p\";; esac; done; cleaned=\"${cleaned# }\"; if [ -n \"$cleaned\" ]; then pnpm add $cleaned; else echo \"[auto-import] Nothing to add\"; fi"'
+    manifest_files:
+      - package.json
+      - pnpm-lock.yaml

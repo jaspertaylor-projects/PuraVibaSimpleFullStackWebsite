@@ -1,0 +1,24 @@
+{
+  "Init": {
+    "path": "./",
+    "script": "docker compose build --pull"
+  },
+  "Launch": {
+    "path": "./",
+    "type": "callback",
+    "script": "compose_launch",
+    "protocol": "http",
+    "frontend_service": "frontend",
+    "frontend_internal_port": 5173,
+    "backend_service": "backend",
+    "backend_internal_port": 8000,
+    "open_browser": true,
+    "open_browser_wait_ms": 8000,
+    "open_browser_poll_ms": 250
+  },
+  "Shutdown": {
+    "path": "./",
+    "type": "callback",
+    "script": "compose_shutdown"
+  }
+}
