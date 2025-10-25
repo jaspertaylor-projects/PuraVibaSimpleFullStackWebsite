@@ -9,8 +9,11 @@ ENV PYTHONUNBUFFERED=1 \
     LOG_DIR=/logs \
     UV_PYTHON_PREFERENCE=only-system
 
-# Install uv once at image build time
-RUN pip install --no-cache-dir uv
+# Install uv and curl
+RUN pip install --no-cache-dir uv && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Non-root runtime user
 ARG UID=1000

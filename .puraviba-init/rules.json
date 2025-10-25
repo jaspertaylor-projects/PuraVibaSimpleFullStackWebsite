@@ -299,14 +299,14 @@
     "id": "_8ZE-RLvE2b_KzcDNlgAO",
     "name": "API Version",
     "type": "group",
-    "selected": true,
+    "selected": false,
     "children": [
       {
         "id": "-CWQkj4AMinQg8XWc_n7u",
         "name": "Only rewrite the files that are neccesarry",
         "type": "rule",
         "ruleText": "Only include files that are being updated in your response.  Some of the files provided may be irrelevant to the task at hand.",
-        "selected": true,
+        "selected": false,
         "children": []
       }
     ]
@@ -315,14 +315,14 @@
     "id": "92S00aOs7rvH1Q-0iu88k",
     "name": "Web Extension Version",
     "type": "group",
-    "selected": false,
+    "selected": true,
     "children": [
       {
         "id": "_nF_wo0aw_4KfSefZ0q0b",
         "name": "Filename as a top level comment",
         "type": "rule",
         "ruleText": "The file will automatically be saved to the location as dictated by this first line comment.\n\nEven though the files you see don't have this as a comment line its only because that line is stripped by the automated tooling.  Mainly so that json files etc wont throw errors.\n\nThe filename comment must be within the code blocks in the web response as this is the snippet that is sent to the code base.",
-        "selected": false,
+        "selected": true,
         "children": []
       },
       {
@@ -330,7 +330,7 @@
         "name": "Every File in its own code block",
         "type": "rule",
         "ruleText": "Put the code samples each into their own code blocks. One code block per file.",
-        "selected": false,
+        "selected": true,
         "children": []
       },
       {
@@ -338,7 +338,7 @@
         "name": "Use Single Line Comments",
         "type": "rule",
         "ruleText": "Use single-line comments (e.g., // or #). The code parser does not support multi-line block comments (e.g., /* ... */).",
-        "selected": false,
+        "selected": true,
         "children": []
       },
       {
@@ -346,7 +346,7 @@
         "name": "Provide All Responses in Chat",
         "type": "rule",
         "ruleText": "Place all responses, including code blocks, directly in the chat. Do not use separate views, as automated tooling depends on this format.",
-        "selected": false,
+        "selected": true,
         "children": []
       }
     ]

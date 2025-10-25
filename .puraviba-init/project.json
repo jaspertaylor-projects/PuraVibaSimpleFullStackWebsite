@@ -1,12 +1,13 @@
 {
   "hiddenFiles": [],
   "focusedFiles": [
-    "/home/anonymous/TheCode/PuraVibaSimpleFullStackWebsite/backend/app/main.py",
-    "/home/anonymous/TheCode/PuraVibaSimpleFullStackWebsite/backend/app/bootstrap.py",
-    "/home/anonymous/TheCode/PuraVibaSimpleFullStackWebsite/logs/backend-error.log"
+    "/home/anonymous/TheCode/InvoiceGenerator/docker-compose.yml",
+    "/home/anonymous/TheCode/InvoiceGenerator/frontend/Dockerfile",
+    "/home/anonymous/TheCode/InvoiceGenerator/backend/Dockerfile",
+    "/home/anonymous/TheCode/InvoiceGenerator/frontend/vite.config.js"
   ],
   "commitMessage": "fix: auto-fix attempt 1",
-  "description": "A scaffolding for a simple fullstack web application. Dockerized with hot reloading.  Meant to coordinate with a new AI first IDE (Pura Viba IDE).",
+  "description": "A simple invoice generator aimed at small businesses",
   "selectedExternalSources": [],
   "showAllFiles": false
 }
